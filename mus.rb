@@ -3,9 +3,9 @@ require 'rubygems'
 require 'fileutils'
 require 'commander/import'
 
+class ArgumentMissingError < StandardError
+end
 class MusicMatcher
-  DEFAULT_MUSIC_DIR = '/Music/Incoming'
-  DEFAULT_THRESHHOLD = 30
   DS = '/'
   def self.ls(dir, threshhold)
   threshhold = threshhold || DEFAULT_THRESHHOLD
@@ -18,8 +18,9 @@ class MusicMatcher
       end
     end
   end
-# 
+
   def self.move(dir, to, threshhold)
+    if threshhold.nil? then raise ArgumentMissingError, "Please specify the number of days of old albums to move." end
     threshhold = threshhold || DEFAULT_THRESHHOLD
     dir = dir || Dir.getwd
     to = to || DEFAULT_MUSIC_DIR
@@ -53,6 +54,7 @@ class MusicMatcher
     #puts (Time.now - File.ctime(path + DS + entry)).divmod(86400)
     (Time.now - File.mtime(path + DS + entry)).divmod(86400)[0] > threshhold
   end
+
   def self.is_album?(path, entry)
     Dir.chdir(path + DS + entry)
     Dir.glob("*.{mp3,flac}").length > 0
@@ -70,6 +72,7 @@ command :ls do |c|
   c.option '--days INTEGER', Integer, 'Specify a threshhold in days (optional)'
   c.action do |args, options|
     options.default \
+      :days => 30,
       :dir => '/home/store/TV'
 
     MusicMatcher.ls(options.dir, options.days)
@@ -83,7 +86,10 @@ command :move do |c|
   c.option '--to STRING', String, 'Specify a directory to move files to (optional)'
   c.option '--days INTEGER', Integer, 'Specify a threshhold in days (optional)'
   c.action do |args, options|
-      MusicMatcher.move(options.dir, options.to, options.days)
+    options.default \
+      :dir => '/home/store/TV',
+      :to => '/Music/Incoming'
+    MusicMatcher.move(options.dir, options.to, options.days)
   end
 end
 
