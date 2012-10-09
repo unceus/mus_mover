@@ -1,4 +1,4 @@
-#!/bin/ruby
+#!/usr/bin/ruby
 require 'rubygems'
 require 'fileutils'
 require 'commander/import'
@@ -55,7 +55,7 @@ class MusicMatcher
   end
   def self.is_album?(path, entry)
     Dir.chdir(path + DS + entry)
-    Dir.glob("*.{mp3,flac}").length > 3
+    Dir.glob("*.{mp3,flac}").length > 0
   end
 end
 
@@ -69,7 +69,10 @@ command :ls do |c|
   c.option '--dir STRING', String, 'Specify a directory to search (optional)'
   c.option '--days INTEGER', Integer, 'Specify a threshhold in days (optional)'
   c.action do |args, options|
-      MusicMatcher.ls(options.dir, options.days)
+    options.default \
+      :dir => '/home/store/TV'
+
+    MusicMatcher.ls(options.dir, options.days)
   end
 end
 
@@ -83,3 +86,5 @@ command :move do |c|
       MusicMatcher.move(options.dir, options.to, options.days)
   end
 end
+
+default_command :ls
