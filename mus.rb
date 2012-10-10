@@ -28,11 +28,12 @@ class MusicMatcher
     Dir.new(dir).each do |e|
       if is_directory?(dir, e)
         if is_album?(dir,e) and created_at_within_threshhold?(dir, e, threshhold)
+          puts "Moving #{e}..."
           move_file(dir + DS + e, to)
-          #puts "#{{ from: dir + DS + e, to: to }}"
         end
       end
     end
+    puts "Done."
   end
 
   def self.get_threshhold
@@ -50,8 +51,6 @@ class MusicMatcher
   end
 
   def self.created_at_within_threshhold?(path, entry, threshhold = 30)
-    #puts File.mtime(path + DS + entry)
-    #puts (Time.now - File.ctime(path + DS + entry)).divmod(86400)
     (Time.now - File.mtime(path + DS + entry)).divmod(86400)[0] > threshhold
   end
 
